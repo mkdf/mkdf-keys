@@ -1,0 +1,4 @@
+<div class="alert alert-<?= $message['type'] ?>" role="alert">
+    <?php if($message['icon']): ?><i class="<?=$message['icon']?>"></i><?php endif;?>
+    <?= $this->escapeHtml($message['message']) ?>
+</div>

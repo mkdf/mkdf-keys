@@ -1,0 +1,18 @@
+<h1>My account: Delete key</h1>
+<?= $this->partial('mkdf/keys/partial/messages', ['messages' => $messages]); ?>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <?= $this->partial('mkdf/core/partial/account-features', ['features' => $features] ) ?>
+        </div>
+        <div class="col-md-9">
+            <?= $this->partial('mkdf/keys/partial/view-key', ['key' => $key] ) ?>
+            <!-- Token: <?= $token ?> -->
+            <?= $this->partial('mkdf/core/partial/actions', [
+                'buttons'=>[
+                    ['type'=>'danger','label'=>'Yes, delete this key', 'target'=> 'key', 'params'=> ['id' => $key->id, 'action' => 'delete'], 'query' => ['token' => $token]],
+                    ['type'=>'secondary','label'=>'No, go back please', 'target'=> 'key', 'params'=> ['id' => $key->id, 'action' => 'details']]]
+            ] ); ?>
+        </div>
+    </div>
+</div>
