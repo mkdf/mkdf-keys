@@ -7,10 +7,24 @@
 
 namespace MKDF\Keys;
 
+use MKDF\Core\Service\AccountFeatureManagerInterface;
+use MKDF\Keys\Feature\AccountKeysFeature;
+use Zend\Mvc\MvcEvent;
+
 class Module
 {
     public function getConfig()
     {
         return include __DIR__ . '/../config/module.config.php';
+    }
+
+    /**
+     * This method is called once the MVC bootstrapping is complete and allows
+     * to register event listeners.
+     */
+    public function onBootstrap(MvcEvent $event)
+    {
+        $featureManager = $event->getApplication()->getServiceManager()->get(AccountFeatureManagerInterface::class);
+        $featureManager->registerFeature($event->getApplication()->getServiceManager()->get(AccountKeysFeature::class));
     }
 }
