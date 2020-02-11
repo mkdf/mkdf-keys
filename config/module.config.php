@@ -55,7 +55,7 @@ return [
     ],
     'view_manager' => [
         'template_path_stack' => [
-            'keys' => __DIR__ . '/../view',
+            'Key' => __DIR__ . '/../view',
         ],
     ],
     'controller_plugins' => [

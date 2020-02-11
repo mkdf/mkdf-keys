@@ -43,7 +43,6 @@ class KeyController extends AbstractActionController
         $page = $this->params()->fromQuery('page', 1);
         $paginator->setCurrentPageNumber($page);
         $paginator->setItemCountPerPage(10);
-
         return new ViewModel([
             'message' => 'Keys ',
             'user'  => $user,
