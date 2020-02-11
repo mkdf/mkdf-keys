@@ -37,6 +37,7 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
     }
     private function buildQueries(){
         $this->_queries = [
+            'isReady'           => 'SELECT ID FROM accesskey LIMIT 1',
             'allKeys'       => 'SELECT * FROM accesskey',
             'allUserKeys'   => 'SELECT * FROM accesskey WHERE user_id=' . $this->fp('userId'),
             'oneKey'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE id = ' . $this->fp('id').' AND user_id='.$this->fp('userId'),
@@ -147,6 +148,19 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
     public function deleteKey($id){
         $statement = $this->_adapter->createStatement($this->getQuery('deleteKey'));
         $outcome = $statement->execute(['id'=>$id]);
+        return true;
+    }
+    
+    public function init(){
+        try {
+            $statement = $this->_adapter->createStatement($this->getQuery('isReady'));
+            $result    = $statement->execute();
+            return false;
+        } catch (\Exception $e) {
+            // XXX Maybe raise a warning here?
+        }
+        $sql = file_get_contents(dirname(__FILE__) . '/../../sql/setup.sql');
+        $this->_adapter->getDriver()->getConnection()->execute($sql);
         return true;
     }
 }

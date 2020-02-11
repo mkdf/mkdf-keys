@@ -10,7 +10,8 @@ namespace MKDF\Keys;
 use MKDF\Core\Service\AccountFeatureManagerInterface;
 use MKDF\Keys\Feature\AccountKeysFeature;
 use Zend\Mvc\MvcEvent;
-
+use MKDF\Keys\Repository\MKDFKeysRepositoryInterface;
+    
 class Module
 {
     public function getConfig()
@@ -24,6 +25,10 @@ class Module
      */
     public function onBootstrap(MvcEvent $event)
     {
+        // Initialisation
+        $repository = $event->getApplication()->getServiceManager()->get(MKDFKeysRepositoryInterface::class);
+        $repository->init();
+     
         $featureManager = $event->getApplication()->getServiceManager()->get(AccountFeatureManagerInterface::class);
         $featureManager->registerFeature($event->getApplication()->getServiceManager()->get(AccountKeysFeature::class));
     }
