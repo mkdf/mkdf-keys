@@ -6,30 +6,41 @@
         </div>
         <div class="col-md-9">
             <?= $this->partial('mkdf/core/partial/actions', $actions); ?>
-            <table class="table">
+            <table class="table table-striped table-bordered">
                 <tr>
+                    <!--
                     <th>ID</th>
+                    -->
                     <th>Name</th>
-                    <th>Description</th>
+                    <th>UUID / Description</th>
+                    <!--
                     <th>UUID</th>
+                    -->
                 </tr>
                 <?php foreach ($keys as $key) : ?>
                     <?php
                     $keyArr = $key->getProperties();
                     ?>
                     <tr>
+                        <!--
                         <td>
                             <a href="<?= $this->url('key', ['action' => 'details', 'id' => $keyArr['id']]) ?>">
                                 <?= $this->escapeHtml($keyArr['id']) ?>
                             </a>
                         </td>
+                        -->
                         <td>
                             <a href="<?= $this->url('key', ['action' => 'details', 'id' => $keyArr['id']]) ?>">
                                 <?= $this->escapeHtml($keyArr['name']) ?>
                             </a>
                         </td>
-                        <td><?= $this->escapeHtml($keyArr['description']) ?></td>
+                        <td>
+                            <em><?= $this->escapeHtml($keyArr['uuid']) ?></em> <br />
+                            <?= $this->escapeHtml($keyArr['description']) ?>
+                        </td>
+                        <!--
                         <td><?= $this->escapeHtml($keyArr['uuid']) ?></td>
+                        -->
                     </tr>
                 <?php endforeach; ?>
 
