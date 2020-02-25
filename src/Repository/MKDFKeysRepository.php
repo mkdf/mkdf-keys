@@ -41,6 +41,7 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             'allKeys'       => 'SELECT * FROM accesskey',
             'allUserKeys'   => 'SELECT * FROM accesskey WHERE user_id=' . $this->fp('userId'),
             'oneKey'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE id = ' . $this->fp('id').' AND user_id='.$this->fp('userId'),
+            'oneKeyFromUuid'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE uuid = ' . $this->fp('uuid').' AND user_id='.$this->fp('userId'),
             'keyDatasets'   => 'SELECT d.title, p.permission FROM accesskey_permissions p, dataset d, accesskey k WHERE '.
                 'p.dataset_id = d.id AND '.
                 'p.key_id = k.id AND '.
@@ -52,6 +53,13 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
                 $this->qi('description') .'='. $this->fp('description').
                 ' WHERE id = ' . $this->fp('id'),
             'deleteKey'      => 'DELETE FROM accesskey WHERE id = ' . $this->fp('id'),
+            'findPermission' => 'SELECT id, permission FROM accesskey_permissions WHERE dataset_id = '.$this->fp('dataset_id').' AND key_id = '.$this->fp('key_id'),
+            'createPermission' => 'INSERT INTO accesskey_permissions '.
+                '(key_id,dataset_id,permission,date_created,date_modified) '.
+                ' VALUES ('.$this->fp('key_id').','.$this->fp('dataset_id').','.$this->fp('permission').',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP) ',
+            'updatePermission' => 'UPDATE accesskey_permissions SET '.
+                'permission = '.$this->fp('permission').', date_modified = CURRENT_TIMESTAMP '.
+                ' WHERE key_id = '.$this->fp('key_id').' AND dataset_id = '.$this->fp('dataset_id'),
         ];
     }
 
@@ -114,6 +122,19 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
         return null;
     }
 
+    public function findKeyFromUuid($keyUuid,$user_id) {
+        $statement = $this->_adapter->createStatement($this->getQuery('oneKeyFromUuid'));
+        $result    = $statement->execute(['uuid'=>$keyUuid, 'userId'=>$user_id]);
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            if ($result->count() > 0) {
+                $b = new Bucket();
+                $b->setProperties($result->current());
+                return $b;
+            }
+        }
+        return null;
+    }
+
     public function findKeyDatasets($id, $userID) {
         $datasets = [];
         $statement = $this->_adapter->createStatement($this->getQuery('keyDatasets'));
@@ -149,6 +170,31 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
         $statement = $this->_adapter->createStatement($this->getQuery('deleteKey'));
         $outcome = $statement->execute(['id'=>$id]);
         return true;
+    }
+
+    public function setKeyPermission($keyId, $datasetId, $permission) {
+        //First check if the key/dataset pairing exists
+        $statement = $this->_adapter->createStatement($this->getQuery('findPermission'));
+        $result    = $statement->execute(['dataset_id'=>$datasetId, 'key_id'=>$keyId]);
+        $found = false;
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize($result);
+            if (count($resultSet) > 0){
+                $found = true;
+            }
+        }
+        //Then either create or amend a key/dataset pairing
+        if ($found){
+            //update the permission entry
+            $statement = $this->_adapter->createStatement($this->getQuery('updatePermission'));
+            $statement->execute(['dataset_id'=>$datasetId, 'key_id'=>$keyId, 'permission'=>$permission]);
+        }
+        else {
+            //create a new permission entry
+            $statement = $this->_adapter->createStatement($this->getQuery('createPermission'));
+            $statement->execute(['dataset_id'=>$datasetId, 'key_id'=>$keyId, 'permission'=>$permission]);
+        }
     }
     
     public function init(){
