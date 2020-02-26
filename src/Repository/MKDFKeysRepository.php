@@ -42,6 +42,8 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             'allUserKeys'   => 'SELECT * FROM accesskey WHERE user_id=' . $this->fp('userId'),
             'oneKey'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE id = ' . $this->fp('id').' AND user_id='.$this->fp('userId'),
             'oneKeyFromUuid'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE uuid = ' . $this->fp('uuid').' AND user_id='.$this->fp('userId'),
+            'userDatasetKey' => 'SELECT COUNT(a.uuid) AS count_keys FROM accesskey_permissions ap, accesskey a WHERE ap.key_id = a.id AND a.user_id = '. $this->fp('user_id').
+                ' AND ap.dataset_id = '. $this->fp('dataset_id'),
             'keyDatasets'   => 'SELECT d.title, p.permission FROM accesskey_permissions p, dataset d, accesskey k WHERE '.
                 'p.dataset_id = d.id AND '.
                 'p.key_id = k.id AND '.
@@ -149,6 +151,22 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             }
         }
         return $datasets;
+    }
+
+    public function userHasDatasetKey($userID, $datasetID) {
+        $statement = $this->_adapter->createStatement($this->getQuery('userDatasetKey'));
+        $result    = $statement->execute(['user_id'=>$userID, 'dataset_id'=>$datasetID]);
+        $keyCount = 0;
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $currentResult = $result->current();
+            $keyCount = (int)$currentResult['count_keys'];
+        }
+        if ($keyCount > 0){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     public function insertKey($data) {
