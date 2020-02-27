@@ -18,10 +18,10 @@ class AccountKeysFeature implements AccountFeatureInterface
         return 'index';
     }
     public function getViewHref(){
-        return '/key';
+        return '/my-account/key';
     }
     public function getEditHref(){
-        return '/key';
+        return '/my-account/key';
     }
     public function hasFeature(){
         // They all have this one

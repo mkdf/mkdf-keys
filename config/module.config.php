@@ -26,7 +26,7 @@ return [
             'key' => [
                 'type' => Segment::class,
                 'options' => [
-                    'route' => '/key[/:action[/:id]]',
+                    'route' => '/my-account/key[/:action[/:id]]',
                     'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id' => '[a-zA-Z0-9_-]*',
