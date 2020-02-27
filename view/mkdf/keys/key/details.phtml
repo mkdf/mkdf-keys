@@ -38,7 +38,24 @@
                                 <?= $this->escapeHtml($dataset['title']) ?>
                             </a>
                         </td>
-                        <td><?= $this->escapeHtml($dataset['permission']) ?></td>
+                        <td>
+                            <?php
+                                switch ($dataset['permission']){
+                                    case 'a':
+                                        echo "Read/Write";
+                                        break;
+                                    case 'r':
+                                        echo "Read";
+                                        break;
+                                    case 'w':
+                                        echo "Write";
+                                        break;
+                                    default:
+                                        echo "Other";
+                                }
+
+                            ?>
+                        </td>
                 <?php endforeach; ?>
 
             </table>
