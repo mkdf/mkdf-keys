@@ -9,7 +9,7 @@ class AccountKeysFeature implements AccountFeatureInterface
     private $active = false;
 
     public function getController() {
-        return \MKDFKeys\Controller\KeyController::class;
+        return \MKDF\Keys\Controller\KeyController::class;
     }
     public function getViewAction(){
         return 'index';
