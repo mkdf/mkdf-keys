@@ -44,7 +44,7 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             'oneKeyFromUuid'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE uuid = ' . $this->fp('uuid').' AND user_id='.$this->fp('userId'),
             'userDatasetKey' => 'SELECT COUNT(a.uuid) AS count_keys FROM accesskey_permissions ap, accesskey a WHERE ap.key_id = a.id AND a.user_id = '. $this->fp('user_id').
                 ' AND ap.dataset_id = '. $this->fp('dataset_id'),
-            'keyDatasets'   => 'SELECT d.id, d.title, p.permission FROM accesskey_permissions p, dataset d, accesskey k WHERE '.
+            'keyDatasets'   => 'SELECT d.id, d.title, p.permission, d.uuid FROM accesskey_permissions p, dataset d, accesskey k WHERE '.
                 'p.dataset_id = d.id AND '.
                 'p.key_id = k.id AND '.
 	            'k.id=' . $this->fp('id').' AND '.

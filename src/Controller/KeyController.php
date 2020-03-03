@@ -4,6 +4,7 @@ namespace MKDF\Keys\Controller;
 use MKDF\Core\Repository\MKDFCoreRepositoryInterface;
 use MKDF\Keys\Repository\MKDFKeysRepositoryInterface;
 use MKDF\Keys\Form\KeyForm;
+use MKDF\Stream\Repository\MKDFStreamRepositoryInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Paginator\Paginator;
 use Zend\Paginator\Adapter;
@@ -15,12 +16,14 @@ class KeyController extends AbstractActionController
 {
     private $_config;
     private $_repository;
+    private $_stream_repository;
 
-    public function __construct(MKDFKeysRepositoryInterface $repository, MKDFCoreRepositoryInterface $core_repository, array $config)
+    public function __construct(MKDFKeysRepositoryInterface $repository, MKDFCoreRepositoryInterface $core_repository, MKDFStreamRepositoryInterface $stream_repository, array $config)
     {
         $this->_config = $config;
         $this->_repository = $repository;
         $this->_core_repository = $core_repository;
+        $this->_stream_repository = $stream_repository;
     }
     
     public function indexAction()
@@ -57,6 +60,10 @@ class KeyController extends AbstractActionController
         $id = (int) $this->params()->fromRoute('id', 0);
         $key = $this->_repository->findKey($id, $userId);
         $datasets = $this->_repository->findKeyDatasets($id, $userId);
+        foreach ($datasets as $dataset){
+            $dataset['stream_read_url'] = $this->_stream_repository->getApiReadHref($dataset->uuid);
+            $dataset['stream_write_url'] = $this->_stream_repository->getApiWriteHref($dataset->uuid);
+        }
         if ($userId > 0) {
             $actions = [
                 'label' => 'Actions',

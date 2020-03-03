@@ -16,7 +16,7 @@
                     <td><?= $this->escapeHtml($key['description']) ?></td>
                 </tr>
                 <tr>
-                    <th>UUID:</th>
+                    <th>Authentication key:</th>
                     <td><?= $this->escapeHtml($key['uuid']) ?></td>
                 </tr>
             </table>
@@ -36,7 +36,25 @@
                         <td>
                             <a href="<?= $this->url('dataset', ['action' => 'details', 'id' => $dataset['id']]) ?>">
                                 <?= $this->escapeHtml($dataset['title']) ?>
-                            </a>
+                            </a><br />
+                            <?php
+                            switch ($dataset['permission']){
+                                case 'a':
+                                    echo "Read: <em>".$this->escapeHtml($dataset['stream_read_url'])."</em>  <br />";
+                                    echo "Write: <em>".$this->escapeHtml($dataset['stream_write_url'])."</em>";
+                                    break;
+                                case 'r':
+                                    echo "Read: <em>".$this->escapeHtml($dataset['stream_read_url'])."</em>";
+                                    break;
+                                case 'w':
+                                    echo "Write: <em>".$this->escapeHtml($dataset['stream_write_url'])."</em>";
+                                    break;
+                                default:
+                                    echo "Other";
+                            }
+
+                            ?>
+
                         </td>
                         <td>
                             <?php

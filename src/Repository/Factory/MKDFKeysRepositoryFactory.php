@@ -1,6 +1,4 @@
 <?php
-
-
 namespace MKDF\Keys\Repository\Factory;
 
 use MKDF\Keys\Repository\MKDFKeysRepository;
