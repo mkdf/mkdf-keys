@@ -28,7 +28,7 @@ class AccountKeysFeature implements AccountFeatureInterface
         return true;
     }
     public function getLabel(){
-        return 'My keys';
+        return '<i class="fas fa-key"></i> My keys';
     }
     public function isActive(){
         return $this->active;
