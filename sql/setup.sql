@@ -4,7 +4,7 @@ create table if not exists accesskey
         primary key,
     name        varchar(255) not null,
     description varchar(255) null,
-    uuid        varchar(28)  not null,
+    uuid        varchar(64)  not null,
     user_id     int          null,
     constraint key_uuid_uindex
         unique (uuid),
