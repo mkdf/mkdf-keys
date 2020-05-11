@@ -49,7 +49,10 @@
             <?= $this->paginationControl($keys,
                 'Sliding',
                 'application/partial/paginator',
-                ['route' => 'key']); ?>
+                [
+                    'route' => 'key',
+                    'url_params' => $url_params
+                ]); ?>
 
         </div>
     </div>

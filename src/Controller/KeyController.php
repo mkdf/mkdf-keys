@@ -51,6 +51,7 @@ class KeyController extends AbstractActionController
             'user'  => $user,
             'keys' => $paginator,
             'actions' => $actions,
+            'url_params' => $this->params()->fromQuery(),
             'features' => $this->accountFeatureManager()->getFeatures($userId)
         ]);
     }
