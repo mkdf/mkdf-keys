@@ -3,7 +3,7 @@ create table if not exists accesskey
     id          int auto_increment
         primary key,
     name        varchar(255) not null,
-    description varchar(255) null,
+    description text null,
     uuid        varchar(64)  not null,
     user_id     int          null,
     constraint key_uuid_uindex
