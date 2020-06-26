@@ -159,7 +159,7 @@ class KeyController extends AbstractActionController
             $token = uniqid(true);
             $container = new Container('Key_Management');
             $container->delete_token = $token;
-            $messages[] = [ 'type'=> 'warning', 'message' =>
+            $messages[] = [ 'type'=> 'danger', 'message' =>
                 'Are you sure you want to delete this key?'];
             return new ViewModel([
                 'key' => $key,
