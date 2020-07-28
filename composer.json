@@ -7,8 +7,13 @@
         "zendframework/zend-cache": "^2.7.1",
         "zendframework/zend-db": "^2.8.1",
         "zendframework/zend-mvc-form": "^1.0",
-        "mkdf/mkdf-core": "^0.9.1",
-        "mkdf/mkdf-datasets": "^0.9.0"
+        "mkdf/mkdf-core": "master",
+        "mkdf/mkdf-datasets": "master"
+    },
+    "autoload": {
+        "psr-4": {
+            "MKDF\\Keys\\": "src/"
+        }
     },
     "license": "Apache-2.0",
     "authors": [
