@@ -42,8 +42,14 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             'allUserKeys'   => 'SELECT * FROM accesskey WHERE user_id=' . $this->fp('userId'),
             'oneKey'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE id = ' . $this->fp('id').' AND user_id='.$this->fp('userId'),
             'oneKeyFromUuid'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE uuid = ' . $this->fp('uuid').' AND user_id='.$this->fp('userId'),
-            'userDatasetKey' => 'SELECT COUNT(a.uuid) AS count_keys FROM accesskey_permissions ap, accesskey a WHERE ap.key_id = a.id AND a.user_id = '. $this->fp('user_id').
+            'userDatasetKeyCount' => 'SELECT COUNT(a.uuid) AS count_keys FROM accesskey_permissions ap, accesskey a WHERE ap.key_id = a.id AND a.user_id = '. $this->fp('user_id').
                 ' AND ap.dataset_id = '. $this->fp('dataset_id'),
+            'userDatasetKeys' => 'SELECT a.name, a.uuid '.
+                                    'FROM accesskey_permissions ap, accesskey a '.
+                                    'WHERE ap.key_id = a.id '.
+                                    'AND a.user_id = '.$this->fp('user_id'). ' '.
+                                    'AND ap.dataset_id = '.$this->fp('dataset_id'). ' '.
+                                    'AND ((ap.permission = "a") OR (ap.permission = "r"))',
             'keyDatasets'   => 'SELECT d.id, d.title, p.permission, d.uuid FROM accesskey_permissions p, dataset d, accesskey k WHERE '.
                 'p.dataset_id = d.id AND '.
                 'p.key_id = k.id AND '.
@@ -154,7 +160,7 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
     }
 
     public function userHasDatasetKey($userID, $datasetID) {
-        $statement = $this->_adapter->createStatement($this->getQuery('userDatasetKey'));
+        $statement = $this->_adapter->createStatement($this->getQuery('userDatasetKeyCount'));
         $result    = $statement->execute(['user_id'=>$userID, 'dataset_id'=>$datasetID]);
         $keyCount = 0;
         if ($result instanceof ResultInterface && $result->isQueryResult()) {
@@ -167,6 +173,24 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
         else{
             return false;
         }
+    }
+
+    public function userDatasetKeys($userID, $datasetID) {
+        $statement = $this->_adapter->createStatement($this->getQuery('userDatasetKeys'));
+        $result    = $statement->execute(['user_id'=>$userID, 'dataset_id'=>$datasetID]);
+        $keys = [];
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize($result);
+            foreach ($resultSet as $row) {
+                $item = [
+                    'keyName' => $row['name'],
+                    'keyUUID' => $row['uuid']
+                ];
+                $keys[] = $item;
+            }
+        }
+        return $keys;
     }
 
     public function insertKey($data) {
