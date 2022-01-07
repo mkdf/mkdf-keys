@@ -50,6 +50,11 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
                                     'AND a.user_id = '.$this->fp('user_id'). ' '.
                                     'AND ap.dataset_id = '.$this->fp('dataset_id'). ' '.
                                     'AND ((ap.permission = "a") OR (ap.permission = "r"))',
+            'allDatasetKeys'=> 'SELECT a.name, a.uuid, u.email, u.full_name, ap.permission '.
+                'FROM accesskey_permissions ap, accesskey a, user u '.
+                'WHERE ap.key_id = a.id '.
+                'AND a.user_id = u.id '.
+                'AND ap.dataset_id = '.$this->fp('dataset_id'). ' ',
             'keyDatasets'   => 'SELECT d.id, d.title, p.permission, d.uuid FROM accesskey_permissions p, dataset d, accesskey k WHERE '.
                 'p.dataset_id = d.id AND '.
                 'p.key_id = k.id AND '.
@@ -186,6 +191,28 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
                 $item = [
                     'keyName' => $row['name'],
                     'keyUUID' => $row['uuid']
+                ];
+                $keys[] = $item;
+            }
+        }
+        return $keys;
+    }
+
+    //Return all keys registered for access on a dataset (for use by dataset owner)
+    public function allDatasetKeys($datasetID) {
+        $statement = $this->_adapter->createStatement($this->getQuery('allDatasetKeys'));
+        $result    = $statement->execute(['dataset_id'=>$datasetID]);
+        $keys = [];
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize($result);
+            foreach ($resultSet as $row) {
+                $item = [
+                    'keyName' => $row['name'],
+                    'keyUUID' => $row['uuid'],
+                    'userEmail' => $row['email'],
+                    'userFullname' => $row['full_name'],
+                    'permission' => $row['permission']
                 ];
                 $keys[] = $item;
             }
