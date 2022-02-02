@@ -44,12 +44,12 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             'oneKeyFromUuid'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE uuid = ' . $this->fp('uuid').' AND user_id='.$this->fp('userId'),
             'userDatasetKeyCount' => 'SELECT COUNT(a.uuid) AS count_keys FROM accesskey_permissions ap, accesskey a WHERE ap.key_id = a.id AND a.user_id = '. $this->fp('user_id').
                 ' AND ap.dataset_id = '. $this->fp('dataset_id'),
-            'userDatasetKeys' => 'SELECT a.name, a.uuid '.
+            'userDatasetKeys' => 'SELECT a.name, a.uuid, ap.permission, ap.id '.
                                     'FROM accesskey_permissions ap, accesskey a '.
                                     'WHERE ap.key_id = a.id '.
                                     'AND a.user_id = '.$this->fp('user_id'). ' '.
-                                    'AND ap.dataset_id = '.$this->fp('dataset_id'). ' '.
-                                    'AND ((ap.permission = "a") OR (ap.permission = "r"))',
+                                    'AND ap.dataset_id = '.$this->fp('dataset_id'). ' ',
+                                    //'AND ((ap.permission = "a") OR (ap.permission = "r"))',
             'allDatasetKeys'=> 'SELECT a.name, a.uuid, u.email, u.full_name, ap.permission '.
                 'FROM accesskey_permissions ap, accesskey a, user u '.
                 'WHERE ap.key_id = a.id '.
@@ -73,6 +73,8 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             'updatePermission' => 'UPDATE accesskey_permissions SET '.
                 'permission = '.$this->fp('permission').', date_modified = CURRENT_TIMESTAMP '.
                 ' WHERE key_id = '.$this->fp('key_id').' AND dataset_id = '.$this->fp('dataset_id'),
+            'removePermissionByUUID' => 'DELETE ap FROM accesskey_permissions ap, accesskey a WHERE a.uuid = '.$this->fp('key_uuid').
+                ' AND ap.key_id = a.id AND ap.dataset_id = '.$this->fp('dataset_id').' AND ap.permission != "d"',
         ];
     }
 
@@ -190,7 +192,8 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             foreach ($resultSet as $row) {
                 $item = [
                     'keyName' => $row['name'],
-                    'keyUUID' => $row['uuid']
+                    'keyUUID' => $row['uuid'],
+                    'permission' => $row['permission'],
                 ];
                 $keys[] = $item;
             }
@@ -238,6 +241,12 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
     public function deleteKey($id){
         $statement = $this->_adapter->createStatement($this->getQuery('deleteKey'));
         $outcome = $statement->execute(['id'=>$id]);
+        return true;
+    }
+
+    public function removeKeyUUIDPermission($key_uuid, $dataset_id) {
+        $statement = $this->_adapter->createStatement($this->getQuery('removePermissionByUUID'));
+        $statement->execute(['key_uuid'=>$key_uuid,'dataset_id'=>$dataset_id]);
         return true;
     }
 
