@@ -50,7 +50,7 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
                                     'AND a.user_id = '.$this->fp('user_id'). ' '.
                                     'AND ap.dataset_id = '.$this->fp('dataset_id'). ' ',
                                     //'AND ((ap.permission = "a") OR (ap.permission = "r"))',
-            'allDatasetKeys'=> 'SELECT a.name, a.uuid, u.email, u.full_name, ap.permission '.
+            'allDatasetKeys'=> 'SELECT a.id, a.name, a.uuid, a.user_id, u.email, u.full_name, ap.permission '.
                 'FROM accesskey_permissions ap, accesskey a, user u '.
                 'WHERE ap.key_id = a.id '.
                 'AND a.user_id = u.id '.
@@ -211,8 +211,10 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             $resultSet->initialize($result);
             foreach ($resultSet as $row) {
                 $item = [
+                    'keyID' => $row['id'],
                     'keyName' => $row['name'],
                     'keyUUID' => $row['uuid'],
+                    'userID'  => $row['user_id'],
                     'userEmail' => $row['email'],
                     'userFullname' => $row['full_name'],
                     'permission' => $row['permission']
