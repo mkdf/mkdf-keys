@@ -31,7 +31,15 @@
 
                 </tr>
                 <?php foreach ($datasets as $dataset) : ?>
-                    <tr>
+                <?php
+                    if ($dataset['permission'] =='d'){
+                        print('<tr class="table-secondary">');
+                    }
+                    else {
+                        print('<tr>');
+                    }
+                ?>
+
 
                         <td>
                             <a href="<?= $this->url('dataset', ['action' => 'details', 'id' => $dataset['id']]) ?>">
@@ -48,6 +56,9 @@
                                     break;
                                 case 'w':
                                     echo "Write: <em>".$this->escapeHtml($dataset['stream_write_url'])."</em>";
+                                    break;
+                                case 'd':
+                                    echo "";
                                     break;
                                 default:
                                     echo "Other";
@@ -67,6 +78,9 @@
                                         break;
                                     case 'w':
                                         echo "Write";
+                                        break;
+                                    case 'd':
+                                        echo "Disabled";
                                         break;
                                     default:
                                         echo "Other";

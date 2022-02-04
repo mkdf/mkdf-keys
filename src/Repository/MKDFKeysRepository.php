@@ -41,6 +41,7 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             'allKeys'       => 'SELECT * FROM accesskey',
             'allUserKeys'   => 'SELECT * FROM accesskey WHERE user_id=' . $this->fp('userId'),
             'oneKey'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE id = ' . $this->fp('id').' AND user_id='.$this->fp('userId'),
+            'uuidFromId'    => 'SELECT uuid FROM accesskey WHERE id = '. $this->fp('id'),
             'oneKeyFromUuid'        => 'SELECT id,name,description,uuid,user_id FROM accesskey WHERE uuid = ' . $this->fp('uuid').' AND user_id='.$this->fp('userId'),
             'userDatasetKeyCount' => 'SELECT COUNT(a.uuid) AS count_keys FROM accesskey_permissions ap, accesskey a WHERE ap.key_id = a.id AND a.user_id = '. $this->fp('user_id').
                 ' AND ap.dataset_id = '. $this->fp('dataset_id'),
@@ -74,7 +75,7 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
                 'permission = '.$this->fp('permission').', date_modified = CURRENT_TIMESTAMP '.
                 ' WHERE key_id = '.$this->fp('key_id').' AND dataset_id = '.$this->fp('dataset_id'),
             'removePermissionByUUID' => 'DELETE ap FROM accesskey_permissions ap, accesskey a WHERE a.uuid = '.$this->fp('key_uuid').
-                ' AND ap.key_id = a.id AND ap.dataset_id = '.$this->fp('dataset_id').' AND ap.permission != "d"',
+                ' AND ap.key_id = a.id AND ap.dataset_id = '.$this->fp('dataset_id'),
         ];
     }
 
@@ -148,6 +149,23 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
             }
         }
         return null;
+    }
+
+    public function getKeyUuidFromId($id) {
+        $statement = $this->_adapter->createStatement($this->getQuery('uuidFromId'));
+        $result    = $statement->execute(['id'=>$id]);
+        $keys = [];
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize($result);
+            foreach ($resultSet as $row) {
+                $item = [
+                    'uuid' => $row['uuid'],
+                ];
+                $keys[] = $item;
+            }
+        }
+        return $keys[0];
     }
 
     public function findKeyDatasets($id, $userID) {
