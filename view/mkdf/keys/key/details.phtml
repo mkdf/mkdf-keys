@@ -32,7 +32,7 @@
                 </tr>
                 <?php foreach ($datasets as $dataset) : ?>
                 <?php
-                    if ($dataset['permission'] =='d'){
+                    if ($dataset['permission'] =='d' || (ctype_upper($dataset['permission']))){
                         print('<tr class="table-secondary">');
                     }
                     else {
@@ -80,6 +80,9 @@
                                         echo "Write";
                                         break;
                                     case 'd':
+                                    case 'A':
+                                    case 'R':
+                                    case 'W':
                                         echo "Disabled";
                                         break;
                                     default:

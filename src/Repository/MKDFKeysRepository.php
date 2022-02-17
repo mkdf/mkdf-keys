@@ -270,21 +270,57 @@ class MKDFKeysRepository implements MKDFKeysRepositoryInterface
         return true;
     }
 
-    public function setKeyPermission($keyId, $datasetId, $permission) {
-        //First check if the key/dataset pairing exists
+    /*
+     * DISABLED key permissions remember their original state by becoming an uppercase version of
+     * their original self. ie a->A r->R w->W
+     * Restoring original permissions is a case of checking that the current permission is in
+     * disabled state and converting it to lower case.
+     */
+    public function restoreKeyPermission($keyId, $datasetId) {
         $statement = $this->_adapter->createStatement($this->getQuery('findPermission'));
         $result    = $statement->execute(['dataset_id'=>$datasetId, 'key_id'=>$keyId]);
         $found = false;
+        $existingPermission = null;
         if ($result instanceof ResultInterface && $result->isQueryResult()) {
             $resultSet = new ResultSet;
             $resultSet->initialize($result);
             if (count($resultSet) > 0){
                 $found = true;
+                $currentResult = $result->current();
+                $existingPermission = $currentResult['permission'];
+            }
+        }
+        if ($found && (ctype_upper($existingPermission))) {
+            $newPermission = strtolower($existingPermission);
+            $this->setKeyPermission($keyId, $datasetId, $newPermission);
+            return $newPermission;
+        }
+        else {
+            throw new \Exception("Attempted reactive a key that wasn't disabled");
+        }
+    }
+
+    public function setKeyPermission($keyId, $datasetId, $permission) {
+        //First check if the key/dataset pairing exists
+        $statement = $this->_adapter->createStatement($this->getQuery('findPermission'));
+        $result    = $statement->execute(['dataset_id'=>$datasetId, 'key_id'=>$keyId]);
+        $found = false;
+        $existingPermission = null;
+        if ($result instanceof ResultInterface && $result->isQueryResult()) {
+            $resultSet = new ResultSet;
+            $resultSet->initialize($result);
+            if (count($resultSet) > 0){
+                $found = true;
+                $currentResult = $result->current();
+                $existingPermission = $currentResult['permission'];
             }
         }
         //Then either create or amend a key/dataset pairing
         if ($found){
             //update the permission entry
+            if ((!is_null($existingPermission)) && ($permission == 'd')) {
+                $permission = strtoupper($existingPermission);
+            }
             $statement = $this->_adapter->createStatement($this->getQuery('updatePermission'));
             $statement->execute(['dataset_id'=>$datasetId, 'key_id'=>$keyId, 'permission'=>$permission]);
         }
